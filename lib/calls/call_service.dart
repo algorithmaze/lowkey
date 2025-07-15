@@ -1,4 +1,3 @@
-
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,7 +26,7 @@ class CallService {
 
     _callChannel = _supabaseClient.channel('calls');
 
-    _callChannel?.onPostgresChanges(
+    _callChannel!.onPostgresChanges(
       event: PostgresChangeEvent.insert,
       schema: 'public',
       table: 'calls',

@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:lowkey/main.dart';
 import 'package:lowkey/chat/typing_indicator.dart';
-
+import 'package:lowkey/contacts/user_repository.dart';
 
 class ChatPage extends StatelessWidget {
   final String chatId;
@@ -24,6 +24,7 @@ class ChatPage extends StatelessWidget {
     return BlocProvider<ChatBloc>(
       create: (context) => ChatBloc(
         ChatRepository(Supabase.instance.client, fileService),
+        UserRepository(Supabase.instance.client),
       )..add(LoadMessages(chatId)),
       child: CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
@@ -117,7 +118,6 @@ class _MessageInputState extends State<_MessageInput> {
             onPressed: () async {
               final result = await FilePicker.platform.pickFiles();
               if (result != null && result.files.single.path != null) {
-                if (!mounted) return;
                 context.read<ChatBloc>().add(SendFile(
                       filePath: result.files.single.path!,
                       fileName: result.files.single.name,
