@@ -28,14 +28,6 @@ class UserRepository {
     return null;
   }
 
-  Future<User?> getUserProfileById(String userId) async {
-    final response = await _supabaseClient.from('profiles').select().eq('id', userId).single();
-    if (response.isNotEmpty) {
-      return User.fromJson(response);
-    }
-    return null;
-  }
-
   Future<void> updateOnlineStatus(String userId, bool isOnline) async {
     await _supabaseClient.from('profiles').update({
       'is_online': isOnline,

@@ -104,16 +104,20 @@ class FriendService {
     }
   }
 
-  Stream<List<FriendRequest>> getPendingFriendRequestsStream() {
-    final currentUserId = _supabaseClient.auth.currentUser?.id;
-    if (currentUserId == null) return Stream.value([]);
+  Future<List<FriendRequest>> getPendingFriendRequests() async {
+    try {
+      final currentUserId = _supabaseClient.auth.currentUser?.id;
+      if (currentUserId == null) return [];
 
-    return _supabaseClient
-        .from('friend_requests')
-        .stream(primaryKey: ['id'])
-        .eq('receiver_id', currentUserId)
-        .eq('status', 'pending')
-        .map((maps) => maps.map((map) => FriendRequest.fromJson(map)).toList());
+      final List<dynamic> data = await _supabaseClient
+          .from('friend_requests')
+          .select()
+          .eq('receiver_id', currentUserId)
+          .eq('status', 'pending');
+      return data.map((json) => FriendRequest.fromJson(json)).toList();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<List<User>> getAcceptedFriends() async {

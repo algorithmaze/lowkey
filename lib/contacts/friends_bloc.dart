@@ -75,15 +75,8 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
           ));
         }
       }
-      // Optimistically update the UI
-      if (state is PendingRequestsLoaded) {
-        final updatedRequests = (state as PendingRequestsLoaded)
-            .requests
-            .where((r) => r.id != event.requestId)
-            .toList();
-        emit(PendingRequestsLoaded(updatedRequests));
-      }
-      add(LoadFriends());
+      add(LoadPendingRequests()); // Reload pending requests after acceptance
+      add(LoadFriends()); // Reload friends after acceptance
     } catch (e) {
       emit(FriendsError(e.toString()));
     }
@@ -97,14 +90,7 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
     try {
       await _friendService.rejectRequest(event.requestId);
       emit(RequestRejected());
-      // Optimistically update the UI
-      if (state is PendingRequestsLoaded) {
-        final updatedRequests = (state as PendingRequestsLoaded)
-            .requests
-            .where((r) => r.id != event.requestId)
-            .toList();
-        emit(PendingRequestsLoaded(updatedRequests));
-      }
+      add(LoadPendingRequests()); // Reload pending requests after rejection
     } catch (e) {
       emit(FriendsError(e.toString()));
     }
@@ -118,14 +104,7 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
     try {
       await _friendService.removeFriend(event.friendId);
       emit(FriendRemoved());
-      // Optimistically update the UI
-      if (state is FriendsLoaded) {
-        final updatedFriends = (state as FriendsLoaded)
-            .friends
-            .where((f) => f.id != event.friendId)
-            .toList();
-        emit(FriendsLoaded(updatedFriends));
-      }
+      add(LoadFriends()); // Reload friends after removal
     } catch (e) {
       emit(FriendsError(e.toString()));
     }
@@ -146,44 +125,16 @@ class FriendsBloc extends Bloc<FriendsEvent, FriendsState> {
 
   
 
-  StreamSubscription<List<FriendRequest>>? _friendRequestsSubscription;
-
-  @override
-  Future<void> close() {
-    _friendRequestsSubscription?.cancel();
-    return super.close();
-  }
-
   Future<void> _onLoadPendingRequests(
     LoadPendingRequests event,
     Emitter<FriendsState> emit,
   ) async {
     emit(FriendsLoading());
     try {
-      _friendRequestsSubscription?.cancel();
-      _friendRequestsSubscription = _friendService
-          .getPendingFriendRequestsStream()
-          .listen((requests) {
-        add(_FriendRequestsUpdated(requests));
-      });
+      final requests = await _friendService.getPendingFriendRequests();
+      emit(PendingRequestsLoaded(requests));
     } catch (e) {
       emit(FriendsError(e.toString()));
     }
   }
-
-  void _onFriendRequestsUpdated(
-    _FriendRequestsUpdated event,
-    Emitter<FriendsState> emit,
-  ) {
-    emit(PendingRequestsLoaded(event.requests));
-  }
-}
-
-class _FriendRequestsUpdated extends FriendsEvent {
-  final List<FriendRequest> requests;
-
-  const _FriendRequestsUpdated(this.requests);
-
-  @override
-  List<Object> get props => [requests];
 }
