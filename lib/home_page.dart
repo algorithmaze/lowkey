@@ -2,6 +2,8 @@
 import 'package:flutter/cupertino.dart';
 
 
+import 'package:lowkey/chat/chat_list_page.dart';
+import 'package:lowkey/contacts/contacts_page.dart';
 import 'package:lowkey/settings/settings_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,7 +13,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chat_bubble_2),
             activeIcon: Icon(CupertinoIcons.chat_bubble_2_fill),
@@ -34,11 +36,13 @@ class HomePage extends StatelessWidget {
           builder: (BuildContext context) {
             switch (index) {
               case 0:
-                return const Center(child: Text('Chats'));
+                return const ChatListPage();
+              case 1:
+                return const ContactsPage();
               case 2:
                 return const SettingsPage();
               default:
-                return const Center(child: Text('Chats'));
+                return const ChatListPage();
             }
           },
         );

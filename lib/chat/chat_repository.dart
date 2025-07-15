@@ -105,4 +105,16 @@ class ChatRepository {
     }).select('id').single();
     return response['id'] as String;
   }
+
+  Stream<List<Chat>> getChats() {
+    final currentUserId = _supabaseClient.auth.currentUser?.id;
+    if (currentUserId == null) return Stream.value([]);
+
+    return _supabaseClient
+        .from('chats')
+        .stream(primaryKey: ['id'])
+        .or('user1_id.eq.$currentUserId,user2_id.eq.$currentUserId')
+        .order('updated_at', ascending: false)
+        .map((maps) => maps.map((map) => Chat.fromJson(map)).toList());
+  }
 }

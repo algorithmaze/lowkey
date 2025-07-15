@@ -16,6 +16,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _usernameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +55,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    CupertinoTextFormFieldRow(
+                      controller: _usernameController,
+                      placeholder: 'Username',
+                      prefix: const Icon(CupertinoIcons.person),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        return null;
+                      },
+                    ),
                     CupertinoTextFormFieldRow(
                       controller: _emailController,
                       placeholder: 'Email',
@@ -110,6 +122,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   AuthSignUpRequested(
                                     email: _emailController.text,
                                     password: _passwordController.text,
+                                    username: _usernameController.text,
                                   ),
                                 );
                           }

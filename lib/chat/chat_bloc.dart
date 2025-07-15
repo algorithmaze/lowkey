@@ -12,10 +12,13 @@ import 'package:lowkey/contacts/user.dart';
 part 'chat_event.dart';
 part 'chat_state.dart';
 
+import 'package:lowkey/chat/chat.dart';
+
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository _chatRepository;
+  StreamSubscription<List<Chat>>? _chatsSubscription;
 
-  ChatBloc(this._chatRepository) : super(ChatLoaded()) {
+  ChatBloc(this._chatRepository) : super(ChatInitial()) {
     on<SendMessage>((event, emit) async {
       final currentUserId = supabase_flutter.Supabase.instance.client.auth.currentUser?.id;
       if (currentUserId == null) {
@@ -90,6 +93,33 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         emit((state as ChatLoaded).copyWith(otherUser: updatedOtherUser));
       }
     });
+
+    on<LoadChats>((event, emit) async {
+      emit(ChatLoading());
+      _chatsSubscription?.cancel();
+      _chatsSubscription = _chatRepository.getChats().listen((chats) {
+        add(_ChatsUpdated(chats));
+      });
+    });
+
+    on<_ChatsUpdated>((event, emit) {
+      emit(ChatsLoaded(chats: event.chats));
+    });
   }
+
+  @override
+  Future<void> close() {
+    _chatsSubscription?.cancel();
+    return super.close();
+  }
+}
+
+class _ChatsUpdated extends ChatEvent {
+  final List<Chat> chats;
+
+  const _ChatsUpdated(this.chats);
+
+  @override
+  List<Object> get props => [chats];
 }
 

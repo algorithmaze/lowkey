@@ -121,20 +121,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final supabase_flutter.AuthResponse response = await _supabaseClient.auth.signUp(
+      final supabase_flutter.AuthResponse response =
+          await _supabaseClient.auth.signUp(
         email: event.email,
         password: event.password,
+        data: {'username': event.username},
       );
-      if (response.user != null) {
-        final username = 'user_${_uuid.v4().substring(0, 8)}'; // Generate a unique username
-        await _userRepository.createUserProfile(
-          userId: response.user!.id,
-          username: username,
-        );
-        emit(AuthAuthenticated(user: response.user!));
-      } else {
-        emit(const AuthError(message: 'Sign up failed: User not created.'));
+      if (response.user == null) {
+        emit(const AuthError(message: 'Signup failed'));
+        return;
       }
+      // The profile is now created by a trigger, so we don't need to call this.
+      // await _userRepository.createUserProfile(
+      //   userId: response.user!.id,
+      //   username: event.username,
+      // );
+      emit(AuthAuthenticated(user: response.user!));
     } on supabase_flutter.AuthException catch (e) {
       emit(AuthError(message: e.message));
     } catch (e) {
