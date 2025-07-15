@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:lowkey/chat/message.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lowkey/core/file_service.dart';
+import 'package:lowkey/chat/chat.dart';
 
 class ChatRepository {
   final SupabaseClient _supabaseClient;
@@ -113,7 +114,8 @@ class ChatRepository {
     return _supabaseClient
         .from('chats')
         .stream(primaryKey: ['id'])
-        .or('user1_id.eq.$currentUserId,user2_id.eq.$currentUserId')
+        .or('user1_id.eq.$userId1,user2_id.eq.$userId2')
+        .or('user1_id.eq.$userId2,user2_id.eq.$userId1')
         .order('updated_at', ascending: false)
         .map((maps) => maps.map((map) => Chat.fromJson(map)).toList());
   }

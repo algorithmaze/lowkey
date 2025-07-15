@@ -88,3 +88,14 @@ class UpdateOnlineStatus extends ChatEvent {
   List<Object?> get props => [userId, isOnline, lastSeen];
 }
 
+class LoadChats extends ChatEvent {}
+
+class _ChatsUpdated extends ChatEvent {
+  final List<Chat> chats;
+
+  const _ChatsUpdated(this.chats);
+
+  @override
+  List<Object> get props => [chats];
+}
+

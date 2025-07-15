@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -9,10 +10,10 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase_flutter;
 import 'package:lowkey/contacts/user.dart';
 
 
+import 'package:lowkey/chat/chat.dart';
+
 part 'chat_event.dart';
 part 'chat_state.dart';
-
-import 'package:lowkey/chat/chat.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository _chatRepository;
@@ -114,12 +115,5 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 }
 
-class _ChatsUpdated extends ChatEvent {
-  final List<Chat> chats;
 
-  const _ChatsUpdated(this.chats);
-
-  @override
-  List<Object> get props => [chats];
-}
 

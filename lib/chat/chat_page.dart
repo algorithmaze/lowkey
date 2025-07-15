@@ -24,7 +24,6 @@ class ChatPage extends StatelessWidget {
     return BlocProvider<ChatBloc>(
       create: (context) => ChatBloc(
         ChatRepository(Supabase.instance.client, fileService),
-        UserRepository(Supabase.instance.client),
       )..add(LoadMessages(chatId)),
       child: CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
