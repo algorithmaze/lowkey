@@ -144,7 +144,8 @@ class _ContactsPageState extends State<ContactsPage> {
                 },
               );
             } else if (state is FriendsError) {
-              return Center(child: Text('Error: ${state.message}'));
+              _showErrorDialog(context, state.message);
+              return const Center(child: Text('No friends yet.'));
             }
             return const Center(child: Text('No friends yet.'));
           } else {
@@ -172,32 +173,56 @@ class _ContactsPageState extends State<ContactsPage> {
                         }
                       },
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CupertinoButton(
-                          onPressed: () {
-                            context.read<FriendsBloc>().add(AcceptFriendRequest(requestId: request.id));
-                          },
-                          child: const Icon(CupertinoIcons.check_mark_circled_solid, color: CupertinoColors.activeGreen),
-                        ),
-                        CupertinoButton(
-                          onPressed: () {
-                            context.read<FriendsBloc>().add(RejectFriendRequest(requestId: request.id));
-                          },
-                          child: const Icon(CupertinoIcons.clear_circled_solid, color: CupertinoColors.destructiveRed),
-                        ),
-                      ],
+                    trailing: BlocBuilder<FriendsBloc, FriendsState>(
+                      builder: (context, state) {
+                        if (state is FriendsLoading) {
+                          return const CupertinoActivityIndicator();
+                        }
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CupertinoButton(
+                              onPressed: () {
+                                context.read<FriendsBloc>().add(AcceptFriendRequest(requestId: request.id));
+                              },
+                              child: const Icon(CupertinoIcons.check_mark_circled_solid, color: CupertinoColors.activeGreen),
+                            ),
+                            CupertinoButton(
+                              onPressed: () {
+                                context.read<FriendsBloc>().add(RejectFriendRequest(requestId: request.id));
+                              },
+                              child: const Icon(CupertinoIcons.clear_circled_solid, color: CupertinoColors.destructiveRed),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   );
                 },
               );
             } else if (state is FriendsError) {
-              return Center(child: Text('Error: ${state.message}'));
+              _showErrorDialog(context, state.message);
+              return const Center(child: Text('Loading requests...'));
             }
             return const Center(child: Text('Loading requests...'));
           }
         },
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
     );
   }

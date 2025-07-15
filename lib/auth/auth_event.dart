@@ -26,9 +26,14 @@ class AuthBiometricLoginRequested extends AuthEvent {}
 class AuthSignUpRequested extends AuthEvent {
   final String email;
   final String password;
+  final String username;
 
-  const AuthSignUpRequested({required this.email, required this.password});
+  const AuthSignUpRequested({
+    required this.email,
+    required this.password,
+    required this.username,
+  });
 
   @override
-  List<Object> get props => [email, password];
+  List<Object> get props => [email, password, username];
 }
